@@ -87,6 +87,20 @@ class FirstTenLetters(Task):
         return self.data[:10]
 
 
+class Average(Task):
+    task = "Знайти середнє арифметичне чисел"
+    complexity = 1
+
+    def get_data(self):
+        data = []
+        for _ in range(100):
+            data.append(random.randint(0, 100))
+        return data
+
+    def get_solution(self):
+        return sum(self.data)/len(self.data)
+
+
 class LastTenLetters(Task):
     task = "Останні 10 букв"
     complexity = 1
@@ -214,11 +228,11 @@ class ChangeKeysValues(Task):
     def get_data(self):
         new_dict = {}
         for i in range(50):
-            new_dict.update({random.randint(0, 1000): random.randint(0, 1000)})
+            new_dict.update({get_random_string(3): get_random_string(3)})
         return new_dict
 
     def get_solution(self):
-       return {value: key for key, value in self.get_data().items()}
+       return {value: key for key, value in self.data.items()}
 
 
 # class ReverseText(Gem):

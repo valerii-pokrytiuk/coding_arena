@@ -13,10 +13,15 @@ class Fabricator:
         self.api_url = url or self.BASE_API_URL
 
     def connect(self):
-        print(requests.get(self.api_url + f'/connect/{self.player}/').json()['message'])
+        print(requests.get(self.api_url + f'/{self.player}/connect/').json()['message'])
 
     def get_unit(self):
-        return requests.get(self.api_url + f'/{self.player}/unit/').json()
+        unit = requests.get(self.api_url + f'/{self.player}/unit/').json()
+        try:
+            unit['data'] = json.loads(unit['data'])
+        except json.JSONDecodeError:
+            ...
+        return unit
 
     def produce(self, data):
         response = requests.post(

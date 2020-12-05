@@ -11,10 +11,10 @@ import tasks
 
 class Game:
     COMPLEXITY_TO_BREED = {
-        0: ['Zergling', 'Baneling'],
-        1: ['Marine', 'Marine', 'Medic', 'Zealot'],
-        2: ['Roach', 'Stalker', 'Adept'],
-        # 3: ['Hydralisk'],
+        0: ['Zergling', 'Zergling', 'Zergling', 'Medic'],
+        1: ['Marine', 'Marine', 'Zealot'],
+        2: ['Roach', 'Firebat', 'Adept', 'Baneling'],
+        3: ['Hydralisk', 'Marauder', 'Stalker'],
         # 4: ['Ravager']
     }
     COLORS = [

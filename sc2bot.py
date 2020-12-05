@@ -33,6 +33,8 @@ class NemesisProjectBot(sc2.BotAI):
     async def on_start(self):
         self.client.game_step = 5
         open(DEBUG_PATH+'arena_debug.txt', "w").close()
+        while message := redis_listener.get_message():
+            ...
 
     async def on_step(self, iteration: int):
         while message := redis_listener.get_message():
@@ -40,19 +42,22 @@ class NemesisProjectBot(sc2.BotAI):
             await self.chat_send(command)
 
         if iteration % 3 == 0:
-            with open(DEBUG_PATH+'arena_debug.txt', 'r') as file:
-                global READ_LINES
-                line_number = 0
-                for line in file:
-                    line_number += 1
-                    if line_number > READ_LINES:
-                        key, value = line.split(' ')
-                        value = value[:-1]
-                        if key == 'KILLED_ZOMBIES':
-                            requests.post(BASE_URL+f'/set-zombies/{value}/')
-                        elif key == 'INCREASE':
-                            requests.post(BASE_URL+f'/{value}/increase-score/')
-                READ_LINES = line_number
+            try:
+                with open(DEBUG_PATH+'arena_debug.txt', 'r') as file:
+                    global READ_LINES
+                    line_number = 0
+                    for line in file:
+                        line_number += 1
+                        if line_number > READ_LINES:
+                            key, value = line.split(' ')
+                            value = value[:-1]
+                            if key == 'KILLED_ZOMBIES':
+                                requests.post(BASE_URL+f'/set-zombies/{value}/')
+                            elif key == 'INCREASE':
+                                requests.post(BASE_URL+f'/{value}/increase-score/')
+                    READ_LINES = line_number
+            except Exception:
+                ...
 
 
 if __name__ == "__main__":
