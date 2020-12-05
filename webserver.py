@@ -4,7 +4,6 @@ from bottle import request, response, run, hook
 from bottle import post, get, put, delete
 from marshmallow import Schema, fields
 
-import constants
 from game import Game
 
 
@@ -28,7 +27,7 @@ def set_headers():
 
 @get('/<player>/connect/')
 def connection_handler(player):
-    if player in constants.PLAYERS:
+    if player in game.COLORS:
         message = f"Welcome to Arena, {player}!"
     else:
         message = "Invalid username!"
@@ -64,7 +63,7 @@ def set_zombies_handler(amount):
 
 @post('/<player_index>/increase-score/')
 def increase_score_handler(player_index):
-    game.increase_score(player_index)
+    game.increase_score(int(player_index))
     return
 
 

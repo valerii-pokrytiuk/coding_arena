@@ -1,4 +1,5 @@
 import json
+from pprint import pprint
 from time import sleep
 
 import requests
@@ -24,6 +25,9 @@ class Fabricator:
         )
         print(response.json()['message'])
         return response
+
+    def score(self):
+        pprint(requests.get(self.api_url + f'/score/').json())
 
     def autobuild(self, database):
         run = True

@@ -1,6 +1,7 @@
 import inspect
 import json
 import random
+from collections import OrderedDict
 from time import sleep
 
 from redis import Redis
@@ -38,7 +39,7 @@ class Game:
     def __init__(self):
         self.current_id = 0
         self.redis = Redis(host='localhost', port=6379, db=0, decode_responses=True)
-        self.players = {color: {'unit': None, 'resolved': 0, 'killed': 0} for color in self.COLORS}
+        self.players = OrderedDict({color: {'unit': None, 'resolved': 0, 'killed': 0} for color in self.COLORS})
         self.tasks_list = []
         for name, obj in inspect.getmembers(tasks):
             if inspect.isclass(obj) and issubclass(obj, tasks.Task) and name != 'Task':
@@ -52,7 +53,7 @@ class Game:
         return {color: info['killed'] for color, info in self.players.items()}
 
     def increase_score(self, player_index):
-        self.players[self.COLORS[player_index]]['killed'] += 1
+        self.players[self.COLORS[player_index-1]]['killed'] += 1
 
     def get_unit(self, player_name: str):
         return self.players.get(player_name, {}).get('unit', None)
@@ -63,7 +64,7 @@ class Game:
             return f"Unit not found"
         sleep(2)
         if unit['solution'] == solution:
-            self.redis.publish('game-commands', f"create {unit['type']} {player_name} 1")
+            self.redis.publish('game-commands', f"create {unit['unit']} {player_name} 1")
             self.players[player_name]['unit'] = None
             self.players[player_name]['resolved'] += 1
             self.set_unit(player_name)

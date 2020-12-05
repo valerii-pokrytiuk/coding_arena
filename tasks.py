@@ -207,6 +207,20 @@ class ReverseString(Task):
         return self.data[::-1]
 
 
+class ChangeKeysValues(Task):
+    task = 'Змінити ключі і значення місцями, наприклад {1:2, 3:4} -> {2:1, 4:3}'
+    complexity = 3
+
+    def get_data(self):
+        new_dict = {}
+        for i in range(50):
+            new_dict.update({random.randint(0, 1000): random.randint(0, 1000)})
+        return new_dict
+
+    def get_solution(self):
+       return {value: key for key, value in self.get_data().items()}
+
+
 # class ReverseText(Gem):
 #     def get_task(self):
 #         return 'Кожне слово задом наперед.'
