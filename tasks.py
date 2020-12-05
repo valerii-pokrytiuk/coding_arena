@@ -1,9 +1,17 @@
-import string
 import random
+import string
+from calendar import isleap
+from datetime import date, timedelta
 
 
 def get_random_string(length):
     return ''.join(random.choice(string.ascii_letters) for i in range(length))
+
+
+def get_random_year():
+    start, end = date(1900, 1, 1), date(2020, 2, 1)
+    days_between_dates = (end - start).days
+    return (start + timedelta(days=random.randrange(days_between_dates))).year
 
 
 class Task:
@@ -52,7 +60,7 @@ class Echo(Task):
 
     def get_solution(self):
         return self.data
-    
+
 
 class FirstLetter(Task):
     task = "Перша буква"
@@ -63,7 +71,7 @@ class FirstLetter(Task):
 
     def get_solution(self):
         return self.data[0]
-    
+
 
 class LastLetter(Task):
     task = "Остання буква"
@@ -218,7 +226,7 @@ class ChangeKeysValues(Task):
         return new_dict
 
     def get_solution(self):
-       return {value: key for key, value in self.get_data().items()}
+        return {value: key for key, value in self.get_data().items()}
 
 
 # class ReverseText(Gem):
@@ -233,3 +241,25 @@ class ChangeKeysValues(Task):
 #         for word in self.body.split(' '):
 #             new_words.append(word[::-1])
 #         return ' '.join(new_words)
+
+
+class IsYearLeap(Task):
+    task = 'Проверить, является ли год високосным.'
+    complexity = 3
+
+    def get_data(self):
+        return get_random_year()
+
+    def get_solution(self):
+        return isleap(self.data)
+
+
+# class CountWords(Task):
+#     task = 'Для каждого слова из данного текста подсчитайте, сколько раз оно встречалось в этом тексте.'
+#     complexity = 3
+#
+#     def get_data(self):
+#         return get_random_year()
+#
+#     def get_solution(self):
+#         return isleap(self.data)
