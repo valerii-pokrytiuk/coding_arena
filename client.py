@@ -17,10 +17,7 @@ class Fabricator:
 
     def get_unit(self):
         unit = requests.get(self.api_url + f'/{self.player}/unit/').json()
-        try:
-            unit['data'] = json.loads(unit['data'])
-        except json.JSONDecodeError:
-            ...
+        unit['data'] = json.loads(unit['data'])
         return unit
 
     def produce(self, data):

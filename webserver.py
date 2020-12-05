@@ -2,19 +2,8 @@ import json
 
 from bottle import request, response, run, hook
 from bottle import post, get, put, delete
-from marshmallow import Schema, fields
 
 from game import Game
-
-
-class UnitSchema(Schema):
-    id = fields.Int()
-    unit = fields.Str()
-    type = fields.Str()
-    task = fields.Str()
-    data = fields.Str()
-    solution = fields.Str()
-    # produce_time
 
 
 game = Game()

@@ -71,6 +71,7 @@ class Game:
 
             return f"Successfully produced {unit['unit']}"
         else:
+            print(f"{player_name} sent {solution}, right is {unit['solution']}")
             return f"Failed to produce {unit['unit']}"
 
     def set_unit(self, player_name):
@@ -85,7 +86,7 @@ class Game:
             'unit': random.choice(self.COMPLEXITY_TO_BREED[task.complexity]),
             'type': type(task).__name__,
             'task': task.task,
-            'data': task.data,
+            'data': json.dumps(task.data),
             'solution': task.solution,
         }
         return unit
