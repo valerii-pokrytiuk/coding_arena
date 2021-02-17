@@ -12,31 +12,30 @@ class Fabricator:
         self.player = username
         self.api_url = url or self.BASE_API_URL
 
+    def process_response(self, response):
+        if response.status_code == 500:
+            print("Server error, ask Valera to fix his bugs!")
+        elif message := response.json().get('message'):
+            print(message)
+        else:
+            print(response)
+        sleep(1)  # DDOS protection, pls do not remove
+
     def connect(self):
         print(requests.get(self.api_url + f'/{self.player}/connect/').json()['message'])
 
-    def get_unit(self):
-        unit = requests.get(self.api_url + f'/{self.player}/unit/').json()
-        unit['data'] = json.loads(unit['data'])
-        return unit
-
-    def produce(self, data):
+    def produce(self, units_str):
         response = requests.post(
             self.api_url + f'/{self.player}/produce/',
-            json={'data': json.dumps(data)},
+            json={'units': units_str},
         )
-        print(response.json()['message'])
-        return response
+        self.process_response(response)
 
     def score(self):
         pprint(requests.get(self.api_url + f'/score/').json())
 
-    def autobuild(self, database):
-        run = True
-        while run:
-            unit = self.get_unit()
-            if unit['type'] in database:
-                self.produce(database[unit['type']]())
-            else:
-                print(f"Unknown type {unit['type']}")
-                run = False
+    def get_task(self):
+       ...
+
+    def check_solution(self, function):
+        ...

@@ -2,6 +2,7 @@ import inspect
 import json
 import random
 from collections import OrderedDict
+from dataclasses import dataclass
 from time import sleep
 
 from redis import Redis
@@ -9,14 +10,33 @@ from redis import Redis
 import tasks
 
 
+@dataclass
+class Unit:
+    price: int
+    production_key: str
+    production_name: str
+    description: str
+
+
+@dataclass
+class Player:
+    color: str
+    money: int = 0
+    killed: int = 0
+    controlled: int = 0
+
+
+UNITS = [
+    Unit(1, 'Z', 'Zergling', ''),
+    Unit(1, 'M', 'Marine', ''),
+    Unit(3, 'B', 'Baneling', ''),
+    Unit(3, 'E', 'Medic', ''),
+    Unit(4, 'F', 'Firebat', ''),
+]
+KEY_TO_UNIT_MAP = {u.production_key: u for u in UNITS}
+
+
 class Game:
-    COMPLEXITY_TO_BREED = {
-        0: ['Zergling', 'Zergling', 'Zergling', 'Medic'],
-        1: ['Marine', 'Marine', 'Zealot'],
-        2: ['Roach', 'Firebat', 'Adept', 'Baneling'],
-        3: ['Hydralisk', 'Marauder', 'Stalker'],
-        # 4: ['Ravager']
-    }
     COLORS = [
         'red',
         'blue',
@@ -37,7 +57,6 @@ class Game:
     ZOMBIES_KILLED = 0
 
     def __init__(self):
-        self.current_id = 0
         self.redis = Redis(host='localhost', port=6379, db=0, decode_responses=True)
         self.players = OrderedDict({color: {'unit': None, 'resolved': 0, 'killed': 0} for color in self.COLORS})
         self.tasks_list = []
@@ -45,18 +64,41 @@ class Game:
             if inspect.isclass(obj) and issubclass(obj, tasks.Task) and name != 'Task':
                 self.tasks_list.append(obj)
 
-    def get_id(self):
-        self.current_id += 1
-        return self.current_id
+    def produce(self, player_color, produce_str):
+        player = self.players[player_color]
+        production_keys = [char for char in produce_str]
+
+        for key in production_keys:
+            if key not in KEY_TO_UNIT_MAP:
+                return f"Invalid key {key}"
+
+        production_dict, total_price = self._get_production_dict_and_price(production_keys)
+        if player.money < total_price:
+            return "Not enough money to produce all this units"
+
+        for unit_name, amount in production_dict.items():
+            self.redis.publish(
+                'game-commands', f"-create {amount} {unit_name} {player.number}"
+            )
+        return "Trying to produce units"
+
+    def _get_production_dict_and_price(self, production_keys):
+        production_dict = {}
+        total_price = 0
+        for key in production_keys:
+            unit = KEY_TO_UNIT_MAP[key]
+            if unit in production_dict:
+                production_dict[unit] += 1
+            else:
+                production_dict[unit.production_name] = 1
+            total_price += unit.price
+        return production_dict, total_price
 
     def get_score(self):
         return {color: info['killed'] for color, info in self.players.items()}
 
     def increase_score(self, player_index):
         self.players[self.COLORS[player_index-1]]['killed'] += 1
-
-    def get_unit(self, player_name: str):
-        return self.players.get(player_name, {}).get('unit', None)
 
     def process_solution(self, player_name, solution):
         unit = self.get_unit(player_name)
@@ -78,19 +120,8 @@ class Game:
         new_unit = self.init_unit(self.players[player_name]['resolved']//10)
         self.players[player_name]['unit'] = new_unit
 
-    def init_unit(self, complexity):
-        allowed_tasks = [task for task in self.tasks_list if task.complexity <= complexity]
-        task = random.choice(allowed_tasks)()
-        unit = {
-            'id': self.get_id(),
-            'unit': random.choice(self.COMPLEXITY_TO_BREED[task.complexity]),
-            'type': type(task).__name__,
-            'task': task.task,
-            'data': json.dumps(task.data),
-            'solution': task.solution,
-        }
-        return unit
+    def start(self, player_color):
+        ...
 
-    def start(self):
-        for player_name in self.COLORS:
-            self.set_unit(player_name)
+    def get_task(self, player_color):
+        ...

@@ -1,17 +1,12 @@
 import json
+from copy import copy
 
 from bottle import request, response, run, hook
 from bottle import post, get, put, delete
 
 from game import Game
 
-
 game = Game()
-
-
-@hook('after_request')
-def set_headers():
-    response.headers['Content-Type'] = 'application/json'
 
 
 @get('/<player>/connect/')
@@ -23,31 +18,21 @@ def connection_handler(player):
     return {"message": message}
 
 
-@get('/<player>/unit/')
-def get_unit_handler(player):
-    return UnitSchema(exclude=['solution', 'id']).dumps(game.get_unit(player))
-
-
 @post('/<player>/produce/')
-def produce_handler(player):
-    try:
-        solution = json.loads(request.json.get('data'))
-        message = game.process_solution(player, solution)
-    except json.JSONDecodeError as e:
-        message = "Invalid format of solution"
-    return {'message': message}
+def produce(player):
+    produce_str = request.json.get('units')
+    return {"message": game.produce(player, produce_str)}
+
+
+@get('/<player>/task/')
+def get_task(player):
+    return {"message": game.get_task(player)}
 
 
 @get('/score/')
 def score_handler():
     score = game.get_score()
     return json.dumps(score)
-
-
-@post('/set-zombies/<amount>/')
-def set_zombies_handler(amount):
-    game.ZOMBIES_KILLED = int(amount)
-    return
 
 
 @post('/<player_index>/increase-score/')
@@ -57,5 +42,4 @@ def increase_score_handler(player_index):
 
 
 if __name__ == "__main__":
-    game.start()
     run(host='0.0.0.0', port=8000)

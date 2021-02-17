@@ -1,5 +1,6 @@
 import random
 import string
+import json
 from calendar import isleap
 from datetime import date, timedelta
 from functools import reduce
@@ -264,15 +265,18 @@ class ReverseText(Task):
         return ' '.join(new_words)
 
 
-class Dict1(Task):
-    task = 'Для каждого слова из данного текста подсчитайте, сколько раз оно встречалось в этом тексте.'
-    complexity = 1
-
-    def get_data(self):
-        return {'foo': fake.json(), 'bar': fake.json()}
-
-    def get_solution(self):
-        return {**self.data['foo'], **self.data['bar']}
+# class Dict1(Task):
+#     task = 'Для каждого слова из данного текста подсчитайте, сколько раз оно встречалось в этом тексте.'
+#     complexity = 1
+#
+#     def get_data(self):
+#         return {
+#             'foo': json.loads(fake.json()),
+#             'bar': json.loads(fake.json())
+#         }
+#
+#     def get_solution(self):
+#         return {**self.data['foo'], **self.data['bar']}
 
 
 class Dict2(Task):
@@ -294,7 +298,7 @@ class Dict3(Task):
         return {f'data{i}': fake.pyint() for i in range(5)}
 
     def get_solution(self):
-        return reduce(lambda x, y: x * y, self.data.keys())
+        return reduce(lambda x, y: x * y, self.data.values())
 
 
 class Dict4(Task):
