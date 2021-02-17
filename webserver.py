@@ -11,7 +11,7 @@ game = Game()
 
 @get('/<player>/connect/')
 def connection_handler(player):
-    if player in game.COLORS:
+    if player in game.players:
         message = f"Welcome to Arena, {player}!"
     else:
         message = "Invalid username!"
@@ -26,18 +26,30 @@ def produce(player):
 
 @get('/<player>/task/')
 def get_task(player):
-    return {"message": game.get_task(player)}
+    message, data = game.get_task(player)
+    return {"message": message, "data": data}
+
+
+@post('/<player>/check-solution/')
+def check_solution(player):
+    return {"message": game.process_solution(player, request.json.get('solution'))}
 
 
 @get('/score/')
 def score_handler():
-    score = game.get_score()
-    return json.dumps(score)
+    score = game.get_info()
+    return {"message": score}
 
 
 @post('/<player_index>/increase-score/')
 def increase_score_handler(player_index):
-    game.increase_score(int(player_index))
+    game.increase_killed(int(player_index))
+    return
+
+
+@post('/<player_index>/increase-control/')
+def increase_score_handler(player_index):
+    game.increase_controlled(int(player_index))
     return
 
 

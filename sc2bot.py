@@ -51,10 +51,14 @@ class NemesisProjectBot(sc2.BotAI):
                         if line_number > READ_LINES:
                             key, value = line.split(' ')
                             value = value[:-1]
+
                             if key == 'KILLED_ZOMBIES':
                                 requests.post(BASE_URL+f'/set-zombies/{value}/')
                             elif key == 'INCREASE':
                                 requests.post(BASE_URL+f'/{value}/increase-score/')
+                            elif key == 'CONTROL':
+                                requests.post(BASE_URL+f'/{value}/increase-control/')
+
                     READ_LINES = line_number
             except Exception:
                 ...
