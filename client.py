@@ -57,3 +57,19 @@ class Fabricator:
         )
 
         self.process_response(response)
+
+    def move(self, move_str='', x=0, y=0):
+        if move_str:
+            # expect string with letters u (up), r (right), d (down), l (left)
+            for i in move_str:
+                step = 10
+                if i == 'u': y += step
+                elif i == 'r': x += step
+                elif i == 'd': y -= step
+                elif i == 'l': x -= step
+
+        response = requests.post(
+            self.api_url + f'/{self.player}/move/',
+            json={'x': x, 'y': y}
+        )
+        self.process_response(response)

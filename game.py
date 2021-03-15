@@ -79,6 +79,11 @@ class Game:
             )
         return players
 
+    def move(self, player_color, x, y):
+        self.redis.publish(
+            'game-commands', f'-move {self.players[player_color]} {x} {y}'
+        )
+
     def produce(self, player_color, produce_str):
         player = self.players[player_color]
         production_keys = [char for char in produce_str]

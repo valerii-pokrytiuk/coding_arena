@@ -8,20 +8,25 @@ from game import Game
 
 game = Game()
 
+def message_wrapper(view):
+    def wrapped_view(*args, **kwargs):
+        return {"message": view(*args, **kwargs)}
+    return wrapped_view
+
 
 @get('/<player>/connect/')
+@message_wrapper
 def connection_handler(player):
     if player in game.players:
-        message = f"Welcome to Arena, {player}!"
-    else:
-        message = "Invalid username!"
-    return {"message": message}
+        return f"Welcome, {player}!"
+    return "Invalid username!"
 
 
 @post('/<player>/produce/')
+@message_wrapper
 def produce(player):
     produce_str = request.json.get('units')
-    return {"message": game.produce(player, produce_str)}
+    return game.produce(player, produce_str)
 
 
 @get('/<player>/task/')
@@ -31,26 +36,32 @@ def get_task(player):
 
 
 @post('/<player>/check-solution/')
+@message_wrapper
 def check_solution(player):
-    return {"message": game.process_solution(player, request.json.get('solution'))}
+    return game.process_solution(player, request.json.get('solution'))
+
+@post('/<player>/move/')
+@message_wrapper
+def move(player):
+    return game.move(player, request.json.get('move'))
 
 
-@get('/score/')
-def score_handler():
-    score = game.get_info()
-    return {"message": score}
-
-
-@post('/<player_index>/increase-score/')
-def increase_score_handler(player_index):
-    game.increase_killed(int(player_index))
-    return
-
-
-@post('/<player_index>/increase-control/')
-def increase_score_handler(player_index):
-    game.increase_controlled(int(player_index))
-    return
+# @get('/score/')
+# def score_handler():
+#     score = game.get_info()
+#     return {"message": score}
+#
+#
+# @post('/<player_index>/increase-score/')
+# def increase_score_handler(player_index):
+#     game.increase_killed(int(player_index))
+#     return
+#
+#
+# @post('/<player_index>/increase-control/')
+# def increase_score_handler(player_index):
+#     game.increase_controlled(int(player_index))
+#     return
 
 
 if __name__ == "__main__":
