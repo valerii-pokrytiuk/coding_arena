@@ -35,33 +35,32 @@ def get_task(player):
     return {"message": message, "data": data}
 
 
+@get('/<player>/skip-task/')
+@message_wrapper
+def get_task(player):
+    return game.skip_task(player)
+
+
 @post('/<player>/check-solution/')
 @message_wrapper
 def check_solution(player):
     return game.process_solution(player, request.json.get('solution'))
 
+@post('/<player>/map/')
+@message_wrapper
+def show_map(player):
+    return game.show_map()
+
+@post('/<player>/orders/stay/')
+@message_wrapper
+def order_stay(player):
+    return game.order_stay(player)
+
+
 @post('/<player>/move/')
 @message_wrapper
 def move(player):
-    return game.move(player, request.json.get('move'))
-
-
-# @get('/score/')
-# def score_handler():
-#     score = game.get_info()
-#     return {"message": score}
-#
-#
-# @post('/<player_index>/increase-score/')
-# def increase_score_handler(player_index):
-#     game.increase_killed(int(player_index))
-#     return
-#
-#
-# @post('/<player_index>/increase-control/')
-# def increase_score_handler(player_index):
-#     game.increase_controlled(int(player_index))
-#     return
+    return game.move(player, *request.json.get('move'))
 
 
 if __name__ == "__main__":

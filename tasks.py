@@ -26,7 +26,7 @@ class Task:
     def get_data_list(self):
         # data is stored in lists for each check to allow args unpacking
         data_list = []
-        for i in range(10):
+        for i in range(5):
             data = self.get_data()
             if type(data) == tuple:
                 data_list.append(data)
@@ -46,7 +46,7 @@ class Task:
 
     @property
     def task(self):
-        return self.__doc__
+        return "{}".format(self.__doc__)
 
     @property
     def type(self):

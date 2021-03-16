@@ -13,10 +13,11 @@ class Fabricator:
         self.api_url = url or self.BASE_API_URL
 
     def process_response(self, response):
-        if response.status_code in [500, 404]:
+        if response.status_code not in [200, 201]:
             print("Server error, ask Valera to fix his bugs!")
+            print(response)
         elif message := response.json().get('message'):
-            pprint(message)
+            print(r"%s" % message)
         else:
             print(response)
         sleep(1)  # DDOS protection, pls do not remove
@@ -35,34 +36,44 @@ class Fabricator:
         response = requests.get(self.api_url + f'/score/')
         self.process_response(response)
 
-    def get_task(self):
+    def task(self):
         response = requests.get(
             self.api_url + f'/{self.player}/task/',
         )
         self.process_response(response)
 
-    def check_solution(self, function):
-        results = []
+    def skip(self):
+        response = requests.get(
+            self.api_url + f'/{self.player}/skip-task/',
+        )
+        self.process_response(response)
 
-        data_list = requests.get(
-            self.api_url + f'/{self.player}/task/',
-        ).json().get('data')
+    def check(self, function):
+        results = []
+        data_list = requests.get(f'{self.api_url}/{self.player}/task/').json().get('data')
 
         for data in data_list:
-            results.append(function(data))
+            results.append(function(*data))
 
         response = requests.post(
             self.api_url + f'/{self.player}/check-solution/',
             json={'solution': results}
         )
+        self.process_response(response)
 
+    def map(self):
+        response = requests.post(self.api_url + f'/{self.player}/map/')
+        self.process_response(response)
+
+    def order_stay(self):
+        response = requests.post(self.api_url + f'/{self.player}/orders/stay/')
         self.process_response(response)
 
     def move(self, move_str='', x=0, y=0):
         if move_str:
             # expect string with letters u (up), r (right), d (down), l (left)
             for i in move_str:
-                step = 10
+                step = 5
                 if i == 'u': y += step
                 elif i == 'r': x += step
                 elif i == 'd': y -= step
@@ -70,6 +81,6 @@ class Fabricator:
 
         response = requests.post(
             self.api_url + f'/{self.player}/move/',
-            json={'x': x, 'y': y}
+            json={'move': [x, y]}
         )
         self.process_response(response)

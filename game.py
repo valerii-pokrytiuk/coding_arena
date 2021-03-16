@@ -39,20 +39,12 @@ class Player:
     task: tasks.Task = None
 
 
-PLAYER_COLORS = [
-        'red',
-        'blue',
-        'green',
-        'teal',
-        'yellow',
-        'violet',
-        'pink',
-        'purple',
-        'brown',
-        'orange',
-        'white',
-        'grey',
-]
+PLAYER_COLORS_MAP = {
+        'red': 10,
+        'blue': 1,
+        'green': 11,
+        'yellow': 12,
+}
 
 
 class Game:
@@ -70,19 +62,27 @@ class Game:
 
     def get_players(self):
         players = OrderedDict()
-        for i in range(len(PLAYER_COLORS)):
-            color = PLAYER_COLORS[i]
+        for color, number in PLAYER_COLORS_MAP.items():
             players[color] = Player(
                 color=color,
-                number=i+1,
+                number=number,
                 task=self.generate_task(),
             )
         return players
 
     def move(self, player_color, x, y):
         self.redis.publish(
-            'game-commands', f'-move {self.players[player_color]} {x} {y}'
+            'game-commands', f'-move {x} {y} {self.players[player_color].number}'
         )
+        return "Trying to move..."
+
+    def show_map(self):
+        self.redis.publish('game-commands', f'-map')
+        return "Showing map"
+
+    def order_stay(self, player_color):
+        self.redis.publish('game-commands', f'-stay {self.players[player_color].number}')
+        return "Order has been issued!"
 
     def produce(self, player_color, produce_str):
         player = self.players[player_color]
@@ -94,7 +94,7 @@ class Game:
 
         production_dict, total_price = self._get_production_dict_and_price(production_keys)
         if player.money < total_price:
-            return f"Not enough money to produce all this units. Your balance is {player.money}$"
+            return f"Not enough energy to produce all this units. Your balance is {player.money}⚡"
 
         for unit_name, amount in production_dict.items():
             self.redis.publish(
@@ -102,7 +102,7 @@ class Game:
             )
 
         player.money -= total_price
-        return f"Trying to produce units. You have {player.money}$ left."
+        return f"Trying to produce units. You have {player.money}⚡ left."
 
     def _get_production_dict_and_price(self, production_keys):
         production_dict = {}
@@ -116,22 +116,6 @@ class Game:
             total_price += unit.price
         return production_dict, total_price
 
-    def get_info(self):
-        info = {}
-        for player in self.players.values():
-            info[player.color] = {
-                'balance': player.money,
-                'killed': player.killed,
-                'controlled': player.controlled
-            }
-        return info
-
-    def increase_controlled(self, player_index):
-        self.players[PLAYER_COLORS[player_index-1]].controlled += 1
-
-    def increase_killed(self, player_index):
-        self.players[PLAYER_COLORS[player_index-1]].killed += 1
-
     def process_solution(self, player_name, solutions_list):
         player = self.players[player_name]
         task = player.task
@@ -141,11 +125,11 @@ class Game:
             except IndexError:
                 return "Not enough data"
             if player_solution != task.solutions_list[i]:
-                return f"Invalid solution [{player_solution}] for input [{task.data_list[i]}]"
+                return f"Invalid solution {player_solution} for input {task.data_list[i]}"
 
-        player.money += task.complexity
+        player.money += task.complexity*2
         player.task = self.generate_task()
-        return f"Task solved, your balance is {player.money}$"
+        return f"Task solved, your balance is {player.money}⚡"
 
     def get_task(self, player_name):
         task = self.players[player_name].task
@@ -156,7 +140,7 @@ class Game:
         if player.money >= 1:
             player.money -= 1
         player.task = self.generate_task()
-        return f"New task assigned, your current balance is {player.money}$."
+        return f"New task assigned, your current balance is {player.money}⚡."
 
     def generate_task(self):
         return random.choice(self.tasks_list)()
