@@ -133,7 +133,7 @@ class Game:
 
     def get_task(self, player_name):
         task = self.players[player_name].task
-        return task.task, task.data_list
+        return {'type': task.type, 'task': task.task, 'data': task.data_list}
 
     def skip_task(self, player_color):
         player = self.players[player_color]

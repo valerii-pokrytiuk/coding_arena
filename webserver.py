@@ -1,6 +1,3 @@
-import json
-from copy import copy
-
 from bottle import request, response, run, hook
 from bottle import post, get, put, delete
 
@@ -10,55 +7,73 @@ game = Game()
 
 def message_wrapper(view):
     def wrapped_view(*args, **kwargs):
-        return {"message": view(*args, **kwargs)}
+        result = view(*args, **kwargs)
+        if type(result) == str:
+            return {"message": result}
+        return result
     return wrapped_view
 
 
+def check_player(view):
+    def wrapped_view(*args, **kwargs):
+        if player := kwargs.get('player'):
+            if player not in game.players:
+                response.status = 400
+                return "Invalid username!"
+        return view(*args, **kwargs)
+    return wrapped_view
+
 @get('/<player>/connect/')
 @message_wrapper
+@check_player
 def connection_handler(player):
     if player in game.players:
         return f"Welcome, {player}!"
-    return "Invalid username!"
-
 
 @post('/<player>/produce/')
 @message_wrapper
+@check_player
 def produce(player):
     produce_str = request.json.get('units')
     return game.produce(player, produce_str)
 
 
 @get('/<player>/task/')
-def get_task(player):
-    message, data = game.get_task(player)
-    return {"message": message, "data": data}
-
-
-@get('/<player>/skip-task/')
 @message_wrapper
+@check_player
 def get_task(player):
+    return game.get_task(player)
+
+
+@get('/<player>/task/skip/')
+@message_wrapper
+@check_player
+def skip_task(player):
     return game.skip_task(player)
 
 
-@post('/<player>/check-solution/')
+@post('/<player>/task/check-solution/')
 @message_wrapper
+@check_player
 def check_solution(player):
     return game.process_solution(player, request.json.get('solution'))
 
 @post('/<player>/map/')
 @message_wrapper
+@check_player
 def show_map(player):
     return game.show_map()
 
 @post('/<player>/orders/stay/')
 @message_wrapper
+@check_player
 def order_stay(player):
     return game.order_stay(player)
 
 
 @post('/<player>/move/')
 @message_wrapper
+@check_player
 def move(player):
     return game.move(player, *request.json.get('move'))
 

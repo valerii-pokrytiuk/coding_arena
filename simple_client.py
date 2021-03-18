@@ -19,7 +19,7 @@ def move(movestr):
             ...
     redis.publish(
         'game-commands',
-        f"-move 1 {x} {y}"
+        f"-move {x} {y} 1"
     )
     
 def map():

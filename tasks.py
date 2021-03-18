@@ -46,7 +46,14 @@ class Task:
 
     @property
     def task(self):
-        return "{}".format(self.__doc__)
+        return "\n------ TASK ------\n"\
+               f"TYPE: {self.type}\n\n" \
+               f"TASK: {self._strip_doc()}\n\n" \
+               f"REWARD: {self.complexity*2}\n"\
+               "------------------\n"
+
+    def _strip_doc(self):
+        return ' '.join(self.__doc__.split())
 
     @property
     def type(self):
@@ -124,7 +131,7 @@ class Square(Task):
 class Perimeter(Task):
     """
     Створіть функцію, яка приймає довжину і шириту прямокутника,
-    а повертає його площу
+    а повертає його периметр
     """
     complexity = 1
     
@@ -185,7 +192,7 @@ class HelloAnn(Task):
     """
     Створіть функцію, яка приймає ім'я.
     Якщо ім'я починається з 'A' -- поверніть 'Hello, {ім'я}!'
-    Якщо ім'я починається з іншої літери -- поверніть 'Goodbye, {ім'я}!
+    Якщо ім'я починається з іншої літери -- поверніть 'Goodbye, {ім'я}!'
     """
     complexity = 2
 
