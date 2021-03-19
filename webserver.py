@@ -70,6 +70,12 @@ def show_map(player):
 def order_stay(player):
     return game.order_stay(player)
 
+@post('/<player>/orders/follow/')
+@message_wrapper
+@check_player
+def order_follow(player):
+    return game.order_follow(player)
+
 
 @post('/<player>/move/')
 @message_wrapper

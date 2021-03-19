@@ -19,9 +19,9 @@ class Unit:
 
 
 UNITS = [
-    Unit(1, 'Z', 'Zergling', ''),
+    # Unit(1, 'Z', 'Zergling', ''),
     Unit(1, 'M', 'Marine', ''),
-    Unit(3, 'B', 'Baneling', ''),
+    # Unit(3, 'B', 'Baneling', ''),
     Unit(3, 'E', 'Medic', ''),
     Unit(4, 'F', 'Firebat', ''),
 ]
@@ -82,6 +82,10 @@ class Game:
 
     def order_stay(self, player_color):
         self.redis.publish('game-commands', f'-stay {self.players[player_color].number}')
+        return "Order has been issued!"
+
+    def order_follow(self, player_color):
+        self.redis.publish('game-commands', f'-follow {self.players[player_color].number}')
         return "Order has been issued!"
 
     def produce(self, player_color, produce_str):

@@ -1,6 +1,6 @@
 from client import Gateway, solve
 
-bot = Gateway('red')
+gate = Gateway('blue')
 
 def move(movestr):
     step = 5
@@ -15,8 +15,9 @@ def move(movestr):
             y -= step
         elif i == 'l':
             x -= step
-    bot.move(x, y)
+    gate.move(x, y)
 
+@solve("Increaser")
 def increaser(x):
     return x + 1
 
@@ -64,5 +65,5 @@ def hello_ann(a):
     return f'Goodbye, {a}!'
 
 
-bot.check()
-bot.task()
+gate.check()
+gate.task()
