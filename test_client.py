@@ -1,4 +1,4 @@
-from client import Gateway, solve
+from client import Gateway
 
 gate = Gateway('blue')
 
@@ -17,49 +17,49 @@ def move(movestr):
             x -= step
     gate.move(x, y)
 
-@solve("Increaser")
 def increaser(x):
+    """Increaser"""
     return x + 1
 
 def summator(a, b):
     return a+b
 
-@solve('Square')
 def square(a):
+    """Square"""
     return a**2
 
-@solve('Perimeter')
 def rectangle(a, b):
+    """Perimeter"""
     return (a+b)*2
 
-@solve('HelloName')
 def hello(a):
+    """HelloName"""
     return f'Hello, {a}!'
 
-@solve('SecondsInHour')
 def count_seconds(s):
+    """SecondsInHour"""
     return s*60*60
 
-@solve('Echo')
 def echo(s):
+    """Echo"""
     return s
 
-@solve('Difference')
 def diff(a, b):
+    """Difference"""
     return a - b
 
-@solve('ConditionalSum')
 def cond_sum(a, b):
+    """ConditionalSum"""
     if a > b:
         return a*b
     return a - b
 
-@solve('GuessNumber')
 def test(a, b):
+    """GuessNumber"""
     return a
 
-@solve('HelloAnn')
 def hello_ann(a):
+    """HelloAnn"""
     if a[0] == 'A':
         return hello(a)
     return f'Goodbye, {a}!'

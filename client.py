@@ -5,12 +5,6 @@ from time import sleep
 import requests
 
 
-def solve(resolving):
-    def wrapper(func):
-        func.resolving = resolving
-        return func
-    return wrapper
-
 def process_response(func):
     def _process_response(response):
         if response.status_code in [500, 404]:
@@ -93,11 +87,8 @@ class Gateway:
     @staticmethod
     def _find_suitable_function(task_type):
         for name, func in getmembers(sys.modules["__main__"], isfunction):
-            try:
-                if func.resolving == task_type:
-                    return func
-            except AttributeError:
-                ...
+            if func.__doc__.strip() == task_type:
+                return func
 
     @process_response
     def map(self):
