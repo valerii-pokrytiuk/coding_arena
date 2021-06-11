@@ -1,5 +1,5 @@
 import sys
-from inspect import getmembers, isfunction, currentframe
+from inspect import getmembers, isfunction
 from time import sleep
 
 import requests

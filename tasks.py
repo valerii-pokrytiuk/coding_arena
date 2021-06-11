@@ -9,7 +9,6 @@ from faker import Faker
 from random import randint
 
 fake = Faker()
-Faker.seed(0)
 
 
 def get_random_string(length):
@@ -222,17 +221,17 @@ class CountLetter(Task):
         return counter
 
 
-# class Modulo(Task):
-#     task = "number: int -> modulo of number"
-#     complexity = 1
-#
-#     def get_data(self):
-#         return randint(-100, 100)
-#
-#     def get_solution(self, number):
-#         return abs(number)
-#
-#
+class Modulo(Task):
+    """
+    Створіть функцію, яка приймає число і повертає його модуль
+    """
+    complexity = 1
+
+    def get_data(self):
+        return randint(-100, 100)
+
+    def get_solution(self, number):
+        return abs(number)
 
 
 class FirstLetter(Task):
@@ -247,23 +246,27 @@ class FirstLetter(Task):
 
 
 class LastLetter(Task):
-    task = "name: str -> last letter of name"
+    """
+    Напишіть функцію, яка примаймає рядок і повертає його останню літеру
+    """
     complexity = 1
 
     def get_data(self): return fake.name()
 
     def get_solution(self, data): return data[-1]
 
-#
-# class FirstTenLetters(Task):
-#     task = "string: str -> first ten letters of string"
-#     complexity = 1
-#
-#     def get_data(self):
-#         return get_random_string(100)
-#
-#     def get_solution(self, data):
-#         return data[:10]
+
+class FirstTenLetters(Task):
+    """
+    Напишіть функцію, яка примаймає рядок і повертає перші десять літер
+    """
+    complexity = 1
+
+    def get_data(self):
+        return fake.paragraph(nb=5)
+
+    def get_solution(self, data):
+        return data[:10]
 #
 #
 # class Average(Task):

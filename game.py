@@ -98,7 +98,7 @@ class Game:
 
         production_dict, total_price = self._get_production_dict_and_price(production_keys)
         if player.money < total_price:
-            return f"Not enough energy to produce all this units. Your balance is {player.money}⚡"
+            return f"Not enough energy to produce all these units. Your balance is {player.money}⚡"
 
         for unit_name, amount in production_dict.items():
             self.redis.publish(

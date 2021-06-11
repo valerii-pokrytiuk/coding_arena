@@ -9,7 +9,7 @@ from sc2.cache import property_immutable_cache
 from sc2.player import Bot, Computer
 
 
-APPLY_PATCH = False
+MAP_NAME = "colonists_fab"
 
 
 # Long game startup monkey patch
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     redis_listener = redis.pubsub(ignore_subscribe_messages=True)
     redis_listener.subscribe('game-commands')
     run_game(
-        maps.get("colonists_fab"),
+        maps.get(MAP_NAME),
         [Bot(Race.Terran, NemesisProjectBot())],
         realtime=True
     )
