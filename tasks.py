@@ -6,146 +6,295 @@ from datetime import date, timedelta
 from functools import reduce
 
 from faker import Faker
+from random import randint
 
 fake = Faker()
-Faker.seed(0)
-NO_DATA = 'NO DATA'
 
 
 def get_random_string(length):
     return ''.join(random.choice(string.ascii_letters) for i in range(length))
 
 
-def get_random_year():
-    start, end = date(1900, 1, 1), date(2020, 2, 1)
-    days_between_dates = (end - start).days
-    return (start + timedelta(days=random.randrange(days_between_dates))).year
-
-
 class Task:
-    task = str()
-    complexity = 10
+    complexity = None
 
     def __init__(self):
         self.data_list = self.get_data_list()
         self.solutions_list = self.get_solutions_list()
 
     def get_data_list(self):
-        return [self.get_data() for _ in range(5)]
+        # data is stored in lists for each check to allow args unpacking
+        data_list = []
+        for i in range(5):
+            data = self.get_data()
+            if type(data) == tuple:
+                data_list.append(data)
+            else:
+                data_list.append([data])
+        return data_list
 
     def get_solutions_list(self):
-        return [self.get_solution(data) for data in self.data_list]
+        # Unpack each data list
+        return [self.get_solution(*data) for data in self.data_list]
 
     def get_data(self):
         raise NotImplementedError
 
-    def get_solution(self, data):
+    def get_solution(self, *args):
         raise NotImplementedError
+
+    @property
+    def task(self):
+        return "\n------ TASK ------\n"\
+               f"TYPE: {self.type}\n\n" \
+               f"TASK: {self._strip_doc()}\n\n" \
+               f"REWARD: {self.complexity*2}\n"\
+               "------------------\n"
+
+    def _strip_doc(self):
+        return ' '.join(self.__doc__.split())
+
+    @property
+    def type(self):
+        return type(self).__name__
+
+
+class Echo(Task):
+    """
+    Створіть функцію, яка приймає рядок і повертає його без змін.
+    """
+    complexity = 0
+
+    def get_data(self): return fake.name()
+
+    def get_solution(self, data): return data
+
+
+class Increaser(Task):
+    """
+    Створіть функцію, яка приймає число і повертає число + 1
+    """
+    complexity = 1
+
+    def get_data(self): return randint(-100, 100)
+
+    def get_solution(self, n): return n+1
 
 
 class HelloName(Task):
-    task = "name: str -> string 'Hello, name!'"
+    """
+    Створіть функцію, яка приймає ім'я і повертає 'Hello, {ім'я}!'.
+    """
+    complexity = 1
+
+    def get_data(self): return fake.name()
+
+    def get_solution(self, name): return f"Hello, {name}!"
+
+
+class Sum(Task):
+    """
+    Створіть функцію, яка приймає два числа і повертає їх суму.
+    """
     complexity = 1
 
     def get_data(self):
-        return fake.name()
+        return randint(-100, 100), randint(-100, 100)
+
+    def get_solution(self, a, b): return a + b
+
+
+class Difference(Task):
+    """
+    Створіть функцію, яка приймає два числа і повертає їх різницю.
+    """
+    complexity = 1
+
+    def get_data(self):
+        return randint(-100, 100), randint(-100, 100)
+
+    def get_solution(self, a, b): return a - b
+
+
+class Square(Task):
+    """
+    Напишіть функцію, яка приймає число і повертає його квадрат
+    """
+    complexity = 1
+
+    def get_data(self): return randint(-100, 100)
+
+    def get_solution(self, number): return number ** 2
+    
+
+class Perimeter(Task):
+    """
+    Створіть функцію, яка приймає довжину і шириту прямокутника,
+    а повертає його периметр
+    """
+    complexity = 1
+    
+    def get_data(self): return randint(1, 100), randint(1, 100)
+
+    def get_solution(self, a, b):
+        return (a+b)*2
+
+
+class SecondsInHour(Task):
+    """
+    Напишіть функцію, яка приймає число годин і повертає кількість секунд в них
+    """
+    complexity = 1
+
+    def get_data(self): return randint(0, 10)
+
+    def get_solution(self, n): return n * 60 * 60
+
+
+class ConditionalSum(Task):
+    """
+    Створіть функцію, яка приймає два числа.
+    Якщо перше число більше -- поверніть їх добуток.
+    Якщо перше число менше -- поверніть їх різницю (a-b)
+    """
+    complexity = 2
+
+    def get_data(self):
+        return randint(-100, 100), randint(-100, 100)
+
+    def get_solution(self, a, b):
+        if a > b:
+            return a * b
+        return a - b
+
+
+class GuessNumber(Task):
+    """
+    Створіть функцію, яка приймає два числа.
+    Якщо числа рівні, поверніть "Equal".
+    Якщо перше число більше від другого, поверніть "Bigger".
+    Інакше поверніть "Smaller".
+    """
+    complexity = 2
+    def get_data(self): return randint(-100, 100), randint(-100, 100)
+
+    def get_solution(self, a, b):
+        if a == b:
+            return "Equal"
+        elif a > b:
+            return "Bigger"
+        else:
+            return "Smaller"
+
+
+class HelloAnn(Task):
+    """
+    Створіть функцію, яка приймає ім'я.
+    Якщо ім'я починається з 'A' -- поверніть 'Hello, {ім'я}!'
+    Якщо ім'я починається з іншої літери -- поверніть 'Goodbye, {ім'я}!'
+    """
+    complexity = 2
+
+    def get_data(self): return fake.name()
 
     def get_solution(self, name):
-        return f"Hello, {name}!"
+        if name[0] == 'A':
+            return f'Hello, {name}!'
+        return f'Goodbye, {name}!'
+
+
+class CountLetter(Task):
+    """
+    Створіть функцію, яка приймає рядок і літеру.
+    Поверніть число, скільки разів ця літера зустрічається в даному рядку.
+    """
+    complexity = 2
+
+    def get_data(self):
+        return fake.paragraph(), get_random_string(1)
+
+    def get_solution(self, string, letter):
+        counter = 0
+        for i in string:
+            if i == letter:
+                counter += 1
+        return counter
 
 
 class Modulo(Task):
-    task = "number: int -> modulo of number"
+    """
+    Створіть функцію, яка приймає число і повертає його модуль
+    """
     complexity = 1
 
     def get_data(self):
-        return random.randint(-100, 100)
+        return randint(-100, 100)
 
     def get_solution(self, number):
         return abs(number)
 
 
-class Square(Task):
-    task = "number: int -> number^2"
-    complexity = 1
-
-    def get_data(self):
-        return random.randint(-100, 100)
-
-    def get_solution(self, number):
-        return number**2
-
-
 class FirstLetter(Task):
-    task = "name: str -> first letter of name"
-    complexity = 1
+    """
+    Напишіть функцію, яка примаймає рядок і повертає його першу літеру
+    """
+    complexity = 2
 
-    def get_data(self):
-        return fake.name()
+    def get_data(self): return fake.name()
 
-    def get_solution(self, data):
-        return data[0]
+    def get_solution(self, data): return data[0]
 
 
 class LastLetter(Task):
-    task = "name: str -> last letter of name"
+    """
+    Напишіть функцію, яка примаймає рядок і повертає його останню літеру
+    """
     complexity = 1
 
-    def get_data(self):
-        return fake.name()
+    def get_data(self): return fake.name()
 
-    def get_solution(self, data):
-        return data[-1]
+    def get_solution(self, data): return data[-1]
 
 
 class FirstTenLetters(Task):
-    task = "string: str -> first ten letters of string"
+    """
+    Напишіть функцію, яка примаймає рядок і повертає перші десять літер
+    """
     complexity = 1
 
     def get_data(self):
-        return get_random_string(100)
+        return fake.paragraph(nb=5)
 
     def get_solution(self, data):
         return data[:10]
-
-
-class Average(Task):
-    task = "numbers: list of int -> average of numbers"
-    complexity = 3
-
-    def get_data(self):
-        data = []
-        for _ in range(10):
-            data.append(random.randint(0, 100))
-        return data
-
-    def get_solution(self, data):
-        return sum(data)/len(data)
-
-
-class LastTenLetters(Task):
-    task = "string: str -> last ten letters of string"
-    complexity = 1
-
-    def get_data(self):
-        return get_random_string(100)
-
-    def get_solution(self, data):
-        return data[-10:]
-
-
-# class Sum(Task):
-#     task = "x: int, y: int -> sum of x and y"
+#
+#
+# class Average(Task):
+#     task = "numbers: list of int -> average of numbers"
+#     complexity = 3
+#
+#     def get_data(self):
+#         data = []
+#         for _ in range(10):
+#             data.append(randint(0, 100))
+#         return data
+#
+#     def get_solution(self, data):
+#         return sum(data)/len(data)
+#
+#
+# class LastTenLetters(Task):
+#     task = "string: str -> last ten letters of string"
 #     complexity = 1
 #
 #     def get_data(self):
-#         return (random.randint(-100, 100), random.randint(-100, 100))
+#         return get_random_string(100)
 #
 #     def get_solution(self, data):
-#         return data[0] + data[1]
+#         return data[-10:]
 
-#
-#
+
+
 # class Slice10To20(Task):
 #     task = "Букви від 10 по 20"
 #     complexity = 1
@@ -157,24 +306,8 @@ class LastTenLetters(Task):
 #         return self.data[10:20]
 #
 
-# class CountLetters(Task):
-#     complexity = 2
-#
-#     def __init__(self):
-#         self.seed = get_random_string(1).lower()
-#         super().__init__()
-#
-#     @property
-#     def task(self):
-#         return f"string: str, letter: str -> number of letter in string"
-#
-#     def get_data(self):
-#         return [get_random_string(200), self.seed]
-#
-#     def get_solution(self, data):
-#         return data[0].count(self.seed)
-#
-#
+
+
 # class FindLetter(Task):
 #     complexity = 2
 #
@@ -199,8 +332,8 @@ class LastTenLetters(Task):
 #
 #     def get_data(self):
 #         string = get_random_string(100)
-#         position = random.randint(0, 100)
-#         return string[:position] + str(random.randint(0, 9)) + string[position:]
+#         position = randint(0, 100)
+#         return string[:position] + str(randint(0, 9)) + string[position:]
 #
 #     def get_solution(self):
 #         for i in range(len(self.data)):
@@ -282,83 +415,3 @@ class LastTenLetters(Task):
 #             new_words.append(word[::-1])
 #         return ' '.join(new_words)
 #
-#
-# # class Dict1(Task):
-# #     task = 'Для каждого слова из данного текста подсчитайте, сколько раз оно встречалось в этом тексте.'
-# #     complexity = 1
-# #
-# #     def get_data(self):
-# #         return {
-# #             'foo': json.loads(fake.json()),
-# #             'bar': json.loads(fake.json())
-# #         }
-# #
-# #     def get_solution(self):
-# #         return {**self.data['foo'], **self.data['bar']}
-#
-#
-# class Dict2(Task):
-#     task = 'Для каждого слова из данного текста подсчитайте, сколько раз оно встречалось в этом тексте.'
-#     complexity = 2
-#
-#     def get_data(self):
-#         return {'keys': fake.words(), 'values': fake.words()}
-#
-#     def get_solution(self):
-#         return dict(zip(self.data['keys'], self.data['values']))
-#
-#
-# class Dict3(Task):
-#     task = 'Дан словарь с числовыми значениями. Необходимо их все перемножить и вывести на экран.'
-#     complexity = 2
-#
-#     def get_data(self):
-#         return {f'data{i}': fake.pyint() for i in range(5)}
-#
-#     def get_solution(self):
-#         return reduce(lambda x, y: x * y, self.data.values())
-#
-#
-# class Dict4(Task):
-#     task = 'Создайте словарь, в котором ключами будут числа от 1 до 10, а значениями эти же числа, возведенные в куб.'
-#     complexity = 3
-#
-#     def get_data(self):
-#         return NO_DATA
-#
-#     def get_solution(self):
-#         return {i: i ** 3 for i in range(1, 11)}
-#
-#
-# class Dict5(Task):
-#     task = 'Создайте словарь из строки следующим образом: в качестве ключей возьмите буквы строки, ' \
-#            'а значениями пусть будут числа, соответствующие количеству вхождений данной буквы в строку.'
-#     complexity = 2
-#
-#     def get_data(self):
-#         return fake.word()
-#
-#     def get_solution(self):
-#         return {i: self.data.count(i) for i in self.data}
-#
-#
-# class IsYearLeap(Task):
-#     task = 'Проверить, является ли год високосным.'
-#     complexity = 4
-#
-#     def get_data(self):
-#         return get_random_year()
-#
-#     def get_solution(self):
-#         return isleap(self.data)
-
-
-# class CountWords(Task):
-#     task = 'Для каждого слова из данного текста подсчитайте, сколько раз оно встречалось в этом тексте.'
-#     complexity = 3
-#
-#     def get_data(self):
-#         return fake.paragraph()
-#
-#     def get_solution(self):
-#         return self.data

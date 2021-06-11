@@ -306,3 +306,4 @@ pip-selfcheck.json
 .ipython/
 
 main.py
+simple_client.py
